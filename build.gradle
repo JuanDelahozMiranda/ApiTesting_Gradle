@@ -1,0 +1,77 @@
+defaultTasks('clean','test')
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'net.serenity-bdd.aggregator'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+group 'co.com.perficient.API'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    ext{
+        serenityVersion = "2.3.13"
+        serenityGradleVersion = "2.3.13"
+        serenityCucumberVersion = "2.2.6"
+    }
+    dependencies {
+        classpath("net.serenity-bdd:serenity-gradle-plugin:$rootProject.ext.serenityGradleVersion")
+    }
+}
+
+configurations.all {
+    resolutionStrategy{
+        force "io.cucumber:cucumber-core:5.0.0"
+    }
+}
+
+dependencies {
+    implementation 'junit:junit:4.12'
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.0-alpha1'
+    implementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
+
+
+    implementation "net.serenity-bdd:serenity-core:$rootProject.ext.serenityVersion",
+            "net.serenity-bdd:serenity-junit:$rootProject.ext.serenityVersion",
+            "net.serenity-bdd:serenity-rest-assured:$rootProject.ext.serenityVersion"
+
+    implementation group: 'net.serenity-bdd', name: 'serenity-reports', version: '2.3.13'
+    implementation group: 'net.serenity-bdd', name: 'serenity-screenplay', version: '2.3.13'
+    implementation group: 'net.serenity-bdd', name: 'serenity-screenplay-webdriver', version: '2.3.13'
+    implementation group: 'net.serenity-bdd', name: 'serenity-screenplay-rest', version: '2.3.13'
+
+    implementation group: 'org.json', name: 'json', version: '20180813'
+    implementation group: 'org.everit.json', name: 'org.everit.json.schema', version: '1.5.1'
+    implementation group: 'org.apache.poi', name: 'poi', version: '3.17'
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
+
+
+    testImplementation 'junit:junit:4.12',
+            "net.serenity-bdd:serenity-cucumber5:$rootProject.ext.serenityCucumberVersion"
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.8.0'
+}
+
+test {
+    systemProperties System.getProperties()
+    systemProperty "file.encoding", "UTF-8"
+    systemProperty "feature.file.encoding", "UTF-8"
+    systemProperty "cucumber.options", System.properties.getProperty("cucumber.options")
+    //System.properties.setProperty('http.proxyHost', 'xx')
+    //System.properties.setProperty('http.proxyPort', 'xx')
+    testLogging.showStandardStreams = true
+    finalizedBy(aggregate)
+}
+
+tasks.withType(JavaCompile){
+    options.encoding('UTF-8')
+}
